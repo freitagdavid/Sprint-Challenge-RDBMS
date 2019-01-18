@@ -10,7 +10,7 @@ server.get('/', ({ res }) => {
     res.status(200).json({ success: 'All is well' });
 });
 
-server.post('/projects', (req, res) => {
+server.post('/api/projects', (req, res) => {
     const data = req.body;
     db('projects')
         .insert(data)
@@ -26,7 +26,7 @@ server.post('/projects', (req, res) => {
         });
 });
 
-server.post('/projects/:project_id/actions', (req, res) => {
+server.post('/api/projects/:project_id/actions', (req, res) => {
     const { project_id } = req.params;
     const data = req.body;
     data['project_id'] = project_id;
@@ -52,6 +52,28 @@ server.post('/projects/:project_id/actions', (req, res) => {
                         }
                     });
             }
+        });
+});
+
+server.get('/api/projects/:id', (req, res) => {
+    const project_id = req.params.id;
+    db('projects')
+        .where({ id: project_id })
+        .then(projects_result => {
+            db('actions')
+                .where({ project_id: project_id })
+                .then(actions_result => {
+                    let results = projects_result;
+                    // console.log(actions_result);
+                    results[0].actions = actions_result;
+                    results[0].complete =
+                        results[0].complete === 0 ? false : true;
+                    results[0].actions = results[0].actions.map(action => {
+                        action.complete = action.complete === 0 ? false : true;
+                        return action;
+                    });
+                    res.status(200).json({ results });
+                });
         });
 });
 
