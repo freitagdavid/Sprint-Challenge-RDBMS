@@ -5,11 +5,18 @@ const port = 5000;
 const server = express();
 server.use(express.json());
 const db = knex(knexConfig.development);
+const { projects } = require('./db/db');
 
 server.get('/', ({ res }) => {
     res.status(200).json({ success: 'All is well' });
 });
 
+// COMPLETE GET /api/projects
+server.get('/api/projects', (req, res) => {
+    projects.get().then(result => res.status(200).json(result));
+});
+
+// COMPLETE POST /api/projects
 server.post('/api/projects', (req, res) => {
     const data = req.body;
     db('projects')
@@ -25,6 +32,9 @@ server.post('/api/projects', (req, res) => {
             }
         });
 });
+
+// TODO PUT /api/projects
+// TODO DELETE /api/projects
 
 server.post('/api/projects/:project_id/actions', (req, res) => {
     const { project_id } = req.params;
