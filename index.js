@@ -74,6 +74,9 @@ server.get('/api/projects/:id', (req, res) => {
                     });
                     res.status(200).json({ results });
                 });
+        })
+        .catch(err => {
+            console.log(err);
         });
 });
 
