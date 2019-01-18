@@ -26,4 +26,33 @@ server.post('/projects', (req, res) => {
         });
 });
 
+server.post('/projects/:project_id/actions', (req, res) => {
+    const { project_id } = req.params;
+    const data = req.body;
+    data['project_id'] = project_id;
+
+    db('projects')
+        .where({ id: project_id })
+        .then(result => {
+            if (result.length === 0) {
+                res.status(404).json({
+                    errMessage: 'Project by this id does not exist',
+                });
+            } else {
+                db('actions')
+                    .insert(data)
+                    .then(result => {
+                        res.status(200).json({ result });
+                    })
+                    .catch(err => {
+                        if (err.errno === 19) {
+                            res.status(400).json({
+                                errMessage: 'description is required',
+                            });
+                        }
+                    });
+            }
+        });
+});
+
 server.listen(port, () => console.log('Server is listening on port', port));
